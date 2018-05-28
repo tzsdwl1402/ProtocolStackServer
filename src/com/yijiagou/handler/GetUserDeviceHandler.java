@@ -3,9 +3,11 @@ package com.yijiagou.handler;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.yijiagou.Vo.VoDevice;
 import com.yijiagou.pojo.JsonKeyword;
 import com.yijiagou.pojo.UserAndDevice;
 import com.yijiagou.tools.JedisUtils.SJedisPool;
+import com.yijiagou.tools.jdbctools.ConnPoolUtil;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerAppender;
 import io.netty.channel.ChannelHandlerContext;
@@ -13,6 +15,7 @@ import org.apache.log4j.Logger;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 
+import java.sql.ResultSet;
 import java.util.Map;
 
 /**
@@ -72,9 +75,10 @@ public class GetUserDeviceHandler extends ChannelHandlerAdapter {
             }
         }
         if (device != null) {
-            for (String str : device.keySet()) {
-                if (device.get(str).equals(devicetype)) {
-                    UserAndDevice userAndDevice = new UserAndDevice(str);
+            for (String deviceId : device.keySet()) {
+                if (device.get(deviceId).equals(devicetype)) {
+                    Long addTime=getAddTime(deviceId);
+                    UserAndDevice userAndDevice = new UserAndDevice(deviceId,addTime);
                     json = JSON.toJSONString(userAndDevice);
                     jsonArray.add(json);
                 }
@@ -82,6 +86,22 @@ public class GetUserDeviceHandler extends ChannelHandlerAdapter {
         }
         logger.info(uname+"===>返回家电集合："+jsonArray);
         return jsonArray;
+    }
+
+    public Long getAddTime(String deviceId){
+        String sql ="select addTime from device where deviceId=?";
+        VoDevice voDevice=new VoDevice();
+        ResultSet rs = null;
+        try {
+            rs = ConnPoolUtil.select(sql,deviceId);
+            while(rs.next()){
+                voDevice.setAddTime(rs.getLong("addTime"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return voDevice.getAddTime();
     }
 
 }

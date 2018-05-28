@@ -36,7 +36,9 @@ public class RegisterHandler extends ChannelHandlerAdapter {
             logger.info(username+"后端处理完得到的值===>RegisterHandler:channelRead"+state);
             ctx.writeAndFlush(state);
             if (state.equals("1")) {
-                String sql = "insert into userinfo values(?,?)";
+
+                String sql ="insert into user(userName,passWord) values(?,?)";
+//                String sql = "update user set userName=?,passWord=?";
                 mysqlAdd(sql, username, passwd);
             }
         } else {
@@ -62,6 +64,7 @@ public class RegisterHandler extends ChannelHandlerAdapter {
                     return "2";
                 } else {
                     String code = jedis.get(username);
+                    System.out.println("code:"+code);
                     if (code == null) {
                         if(jedis.exists(username)){
                             jedis.del(username);
@@ -70,6 +73,7 @@ public class RegisterHandler extends ChannelHandlerAdapter {
                         logger.info(username+"业务处理完返回值===>jedisCheckUser 0");
                         return "0";
                     } else if (code.equals(checkcode)) {
+                        System.out.println("hello");
                         jedis.hset(JsonKeyword.USERS, username, passwd);
                         if(jedis.exists(username)){
                             jedis.del(username);

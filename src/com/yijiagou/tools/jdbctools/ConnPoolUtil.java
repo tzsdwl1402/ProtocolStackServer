@@ -4,10 +4,7 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 import com.yijiagou.config.C3p0Configurator;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -113,5 +110,37 @@ public class ConnPoolUtil {
         number = preparedStatement.executeUpdate();
 
         return number;
+    }
+
+    public static ResultSet select(String sql,Object... args) throws Exception{
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        connection=dataSource.getConnection();
+        preparedStatement=connection.prepareStatement(sql);
+//        if(preparedStatement.executeQuery().getRow()==0){
+//            System.out.println("result size :"+0);
+//            return null;
+//        }else {
+        for (int i = 0; i < args.length; i++) {
+            preparedStatement.setObject(i + 1, args[i]);
+        }
+            return preparedStatement.executeQuery();
+//        }
+    }
+
+    public static int selectCount(String sql,Object... args) throws Exception{
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        connection=dataSource.getConnection();
+//        preparedStatement=connection.prepareStatement(sql);
+        Statement stmt = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_UPDATABLE);
+
+        ResultSet rs=stmt.executeQuery(sql);
+        int count = 0;
+        if (rs.next()) {
+            count = rs.getInt(1);
+        }
+        return count;
     }
 }

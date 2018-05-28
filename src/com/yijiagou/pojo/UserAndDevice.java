@@ -7,6 +7,7 @@ public class UserAndDevice {
     private String uname;
     private String deviceid;
     private String devicetype;
+    private long addTime;
 
     public UserAndDevice() {
     }
@@ -17,8 +18,9 @@ public class UserAndDevice {
         this.devicetype = devicetype;
     }
 
-    public UserAndDevice(String deviceid) {
+    public UserAndDevice(String deviceid,long addTime) {
         this.deviceid = deviceid;
+        this.addTime = addTime;
     }
 
     public String getUname() {
@@ -43,5 +45,13 @@ public class UserAndDevice {
 
     public void setDevicetype(String devicetype) {
         this.devicetype = devicetype;
+    }
+
+    public long getAddTime() {
+        return addTime;
+    }
+
+    public void setAddTime(long addTime) {
+        this.addTime = addTime;
     }
 }

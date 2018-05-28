@@ -27,5 +27,6 @@ public class PSRequest extends Message {
         sb2.append(sessionId).append("*").append(urlsize).append("*").append(deviceids).
                 append("*").append(deviceType).append("*").append(appId);
         this.body = sb2.toString();
+
     }
 }

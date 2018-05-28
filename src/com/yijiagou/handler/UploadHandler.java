@@ -15,6 +15,7 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Transaction;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 
+import java.io.*;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -43,11 +44,9 @@ public class UploadHandler extends ChannelHandlerAdapter {
         try {
             String type = jsonObject.getString(JsonKeyword.TYPE);
             if (type.equals(JsonKeyword.CODE)) {
-
                 String result=jsonToCode(jsonObject);
                 System.out.println("result====>"+result);
                 ctx.writeAndFlush(result).addListener(ChannelFutureListener.CLOSE);
-//                System.out.println("Upload ok!");
                 logger.info("Upload ok");
             } else {
                 ctx.fireChannelRead(msg);
@@ -69,13 +68,12 @@ public class UploadHandler extends ChannelHandlerAdapter {
             JSONArray code = jsonObject.getJSONArray(JsonKeyword.CODE);
             String info = jsonObject.getString(JsonKeyword.INFO);
             String type = jsonObject.getString(JsonKeyword.DEVICETYPE);
+            String userName= jsonObject.getString(JsonKeyword.USERNAME);
             String typeinfo=type+"info";
-            System.out.println(typeinfo);
             Step step = new Step(0);
             StringBuffer codes = new StringBuffer();
             codes.append("from command.power import *\n");
             codes.append(getBlock(step, code, ""));
-            System.out.println(codes.toString());
             int count = 0;
             Jedis jedis = sJedisPool.getConnection();
 
@@ -92,8 +90,7 @@ public class UploadHandler extends ChannelHandlerAdapter {
                     long number = 0;
                     //保证编号唯一
 
-                    lock.lock();;
-                    System.out.println(type);
+                    lock.lock();
                     if (jedis.exists(type)) {
                         number = jedis.zcard(type);
                         System.out.println(number);
@@ -105,27 +102,39 @@ public class UploadHandler extends ChannelHandlerAdapter {
                     t.hset(typeinfo,number + "",info1+"...");
                     t.exec();
 
+                    long uploadTime=System.currentTimeMillis();
+                    String sql = "insert into appInfo(appid,deviceType,appInfo,uploadTime,username) values(?,?,?,?,?)";
+                    shortInfo(sql,number+"",type,info,uploadTime,userName);
 
-                    String sql = "insert into appinfo values(?,?,?)";
-                    shortInfo(sql,number+"",info1+"...",type);
-
-                    //----------------------CDN请求 回复-----------------------------
+                    //----------------------ftp server请求 回复-----------------------------
                     StringBuffer sb = new StringBuffer();
                     sb.append(info);
-                    String filepath0="/code/"+type+"/"+number+".py";
-                    String infopath = "/info/"+type+"/"+number+".info";
-                    System.out.println(codes);
-                    System.out.println("xxxxxxxxxxxxxxxxxxtype:"+type);
-                    System.out.println(filepath0);
-                    String result = Upload.uploadFile(filepath0,codes,infopath,info);
+//                    String filepath0="/code/"+type+"/"+number+".py";
+//                    String infopath = "/info/"+type+"/"+number+".info";
+//                    System.out.println(codes);
+//                    System.out.println("xxxxxxxxxxxxxxxxxxtype:"+type);
+//                    System.out.println(filepath0);
+                    String filenamePy=number+".py";
+                    String filenameInfo=number+".info";
+//                    System.out.println("codes:"+codes);
+//                    System.out.println("info:"+info);
+//                    String result = Upload.uploadFile(filepath0,codes,infopath,info);
 
-                    if(result=="1"){
+                    saveStringToFile(codes.toString(),"/opt/ftp/code/"+filenamePy);
+//                    saveStringToFile(info,"/opt/ftp/info/"+filenameInfo);
+                    FileInputStream input = new FileInputStream("/opt/ftp/code/"+filenamePy);
+                    boolean result1 = Upload.uploadFile("127.0.0.1",2121,"test","123456","usr/share/ftp/",filenamePy,input);
+//                    input=new FileInputStream("/opt/ftp/info/"+filenameInfo);
+//                    boolean result2 =Upload.uploadFile("127.0.0.1",2121,"test","123456","usr/share/ftp/",filenameInfo,input);
+//                    System.out.println("result1:"+result1);
+//                    System.out.println("result2:"+result2);
+                    if(result1==true){
                         return "1";
                     }else {
                         return "0";
                     }
 
-                    //----------------------CDN请求 回复-----------------------------
+                    //----------------------ftp server 请求 回复-----------------------------
 
                 } catch (JedisConnectionException e) {
                     e.printStackTrace();
@@ -176,7 +185,7 @@ public class UploadHandler extends ChannelHandlerAdapter {
                     if (methodCounts[1].equals("Time")) {
                         block.append(" == ");
                     }
-                    ;
+
                     if (methodCounts[2].equals("String"))
                         block.append("\"" + methodCounts[0] + "\"");
                     else
@@ -208,7 +217,7 @@ public class UploadHandler extends ChannelHandlerAdapter {
 
                     String[] counts = statement.split("\\|");
                     block.append(counts[0]);
-                    System.out.println(step.getStep());
+//                    System.out.println(step.getStep());
                     int methodNum = Integer.parseInt(counts[1]);
                     block.append("(");
                     for (int j = 0; j < methodNum; j++) {
@@ -243,12 +252,12 @@ public class UploadHandler extends ChannelHandlerAdapter {
     }
 
 
-    public int shortInfo(String sql,String appid,String info,String deviceType){
+    public int shortInfo(String sql,String appid,String deviceType,String info,long uploadTime,String userName){
         int count = 0;
         int a = 0;
         while (true) {
             try {
-                a = ConnPoolUtil.updata(sql,appid, info,deviceType);
+                a = ConnPoolUtil.updata(sql,appid, deviceType,info,uploadTime,userName);
                 return a;
             } catch (Exception e) {
                 logger.warn(e + "insertMysql");
@@ -264,6 +273,18 @@ public class UploadHandler extends ChannelHandlerAdapter {
                 continue;
             }
         }
+    }
+
+    public void saveStringToFile(String str,String fileName) throws IOException {
+        File file = new File(fileName);
+        FileWriter fw = new FileWriter(file);
+        if(!file.exists()){
+            file.createNewFile();
+        }
+        BufferedWriter bw=new BufferedWriter(fw);
+        bw.write(str, 0, str.length()-1);
+        bw.flush();
+        bw.close();
     }
 
     class Step {
