@@ -30,21 +30,19 @@ public class AddFriendsHandler extends ChannelHandlerAdapter {
             String userName = jsonObject.getString(JsonKeyword.USERNAME);
             String friend = jsonObject.getString(JsonKeyword.FRIEND);
             String status = jsonObject.getString(JsonKeyword.STATUS);
+            String valMessage = jsonObject.getString(JsonKeyword.VAL_MESSAGE);
+            logger.info("[addFriends,"+userName+",["+friend+","+status+","+valMessage+"],"+"添加朋友,"+System.currentTimeMillis()+"]");
             Jedis jedis = null;
             jedis = sJedisPool.getConnection();
             int ret = 0;
-//            if (jedis.hexists(JsonKeyword.USERS, friend) == true) {
-//                ctx.writeAndFlush("3");// already invite;
-//            } else {
-                ret = saveToCache(jedis, userName, friend, status);
-//            }
+            ret = saveToCache(jedis, userName, friend, status, valMessage);
             sJedisPool.putbackConnection(jedis);
-            if(ret==3){
+            if (ret == 3) {
                 ctx.writeAndFlush("3");//already invite;
-            }else if(ret==1){
+            } else if (ret == 1) {
                 ctx.writeAndFlush("1");
-                saveRelationToDB(userName,friend,STATUS1);
-            }else if(ret==2){
+                saveRelationToDB(userName, friend, STATUS1);
+            } else if (ret == 2) {
                 ctx.writeAndFlush("2");//invite failed
             }
 
@@ -54,17 +52,21 @@ public class AddFriendsHandler extends ChannelHandlerAdapter {
         }
     }
 
-    public int saveToCache(Jedis jedis, String user1, String user2, String status) {
+    public int saveToCache(Jedis jedis, String user1, String user2, String status, String valMessage) {
 
         try {
             if (status.equals(AddFriendStatus.INVITE.getValue())) {
-                if(jedis.hexists(user1+KEY,user2)){
-                    return 3;//already invite
+                if (jedis.hexists(user1 + KEY, user2)) {
+                    jedis.hdel(user1 + KEY, user2);
+                    jedis.hdel(user2 + KEY, user1);
+                    jedis.del(user1 + user2);
+//                    return 3;//already invite
                 }
-                try{
+                try {
                     jedis.hset(user1 + KEY, user2, STATUS0);
                     jedis.hset(user2 + KEY, user1, STATUS0);
-                }catch (Exception e){
+                    jedis.set(user1 + user2, valMessage);
+                } catch (Exception e) {
                     System.out.println(e);
                 }
 

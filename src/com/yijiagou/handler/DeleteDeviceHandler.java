@@ -13,7 +13,7 @@ import redis.clients.jedis.Jedis;
 public class DeleteDeviceHandler extends ChannelHandlerAdapter {
     private SJedisPool sJedisPool;
     private static Logger logger = Logger.getLogger(DeleteDeviceHandler.class.getName());
-
+    private static final String KEY="DEVICE";
     public DeleteDeviceHandler(SJedisPool sJedisPool) {
         this.sJedisPool = sJedisPool;
     }
@@ -25,6 +25,7 @@ public class DeleteDeviceHandler extends ChannelHandlerAdapter {
         if(actiontype.equals(JsonKeyword.DELETE_DEVICE)){
             String userName=jsonObject.getString(JsonKeyword.USERNAME);
             String deviceId=jsonObject.getString(JsonKeyword.DEVICEID);
+            logger.info("[deleteDevice,"+userName+",["+deviceId+"],解邦家电,"+System.currentTimeMillis()+"]");
             int ret= deleteDevicebyUserName(userName,deviceId);
             if(ret>=0){
                 ctx.writeAndFlush("1");
@@ -40,9 +41,9 @@ public class DeleteDeviceHandler extends ChannelHandlerAdapter {
         Jedis jedis = null;
         jedis=sJedisPool.getConnection();
 
-        if(jedis.exists(userName)){
+        if(jedis.exists(userName+KEY)){
             try{
-                jedis.hdel(userName,deviceId);
+                jedis.hdel(userName+KEY,deviceId);
             }catch (Exception e){
                 return -1;
             }

@@ -12,6 +12,7 @@ import redis.clients.jedis.Jedis;
 public class DeleteMessageHandler extends ChannelHandlerAdapter {
     private SJedisPool sJedisPool;
     private static Logger logger = Logger.getLogger(DeleteMessageHandler.class.getName());
+    private static String KEY="MESS";
 
     public DeleteMessageHandler(SJedisPool sJedisPool) {
         this.sJedisPool = sJedisPool;
@@ -21,9 +22,10 @@ public class DeleteMessageHandler extends ChannelHandlerAdapter {
         JSONObject jsonObject = (JSONObject) msg;
         String actiontype = (String) jsonObject.get(JsonKeyword.TYPE);
         if(actiontype.equals(JsonKeyword.DELETEMESSAGE)){
-            String userName=jsonObject.getString(JsonKeyword.DELETE_DEVICE);
+            String userName=jsonObject.getString(JsonKeyword.USERNAME);
             String sender=jsonObject.getString(JsonKeyword.SENDER);
             String addTime=jsonObject.getString(JsonKeyword.ADDTIME);
+            logger.info("[deleteMessage,"+userName+",["+sender+","+addTime+"],"+"删除留言,"+System.currentTimeMillis()+"]");
             Jedis jedis=null;
             jedis=sJedisPool.getConnection();
             int ret=deleteFromCache(jedis,userName,sender,addTime);
@@ -40,7 +42,8 @@ public class DeleteMessageHandler extends ChannelHandlerAdapter {
 
     public int deleteFromCache(Jedis jedis,String userName,String sender,String addTime){
         try {
-            jedis.hdel(userName,sender+addTime);
+            System.out.println(userName+KEY+"   "+addTime);
+            jedis.hdel(userName+KEY,sender+"|"+addTime);
             return 1;
         }catch (Exception e) {
             System.out.println(e);

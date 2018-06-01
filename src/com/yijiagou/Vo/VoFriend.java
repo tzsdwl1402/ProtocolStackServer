@@ -6,6 +6,7 @@ public class VoFriend {
     private String gender;
     private int age;
     private String address;
+    private String valMessage;
 
     public VoFriend(){
 
@@ -57,5 +58,13 @@ public class VoFriend {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public String getValMessage() {
+        return valMessage;
+    }
+
+    public void setValMessage(String valMessage) {
+        this.valMessage = valMessage;
     }
 }

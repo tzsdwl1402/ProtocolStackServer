@@ -2,8 +2,8 @@ package com.yijiagou.Vo;
 
 public class VoMessage {
     private String user;
-    private String time;
-    private String message;
+    private String ltime;
+    private String lmessage;
 
     public String getUser() {
         return user;
@@ -13,19 +13,19 @@ public class VoMessage {
         this.user = user;
     }
 
-    public String getTime() {
-        return time;
+    public String getLtime() {
+        return ltime;
     }
 
-    public void setTime(String time) {
-        this.time = time;
+    public void setLtime(String ltime) {
+        this.ltime = ltime;
     }
 
-    public String getMessage() {
-        return message;
+    public String getLmessage() {
+        return lmessage;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public void setLmessage(String lmessage) {
+        this.lmessage = lmessage;
     }
 }

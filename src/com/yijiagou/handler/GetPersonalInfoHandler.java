@@ -27,6 +27,7 @@ public class GetPersonalInfoHandler extends ChannelHandlerAdapter {
         String type = body.getString(JsonKeyword.TYPE);
         if(type.equalsIgnoreCase(JsonKeyword.GET_PERSONAL_INFO)){
             String userName=body.getString(JsonKeyword.USERNAME);
+            logger.info("[getPersonalInfo,"+userName+",["+userName+"],获取用户详细信息,"+System.currentTimeMillis()+"]");
             String sql="select * from user where username="+userName;
             VoUser voUser=GetPersonalInfoFromDB(sql);
             String json= JSON.toJSONString(voUser);

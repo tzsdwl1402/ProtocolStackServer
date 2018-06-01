@@ -101,8 +101,9 @@ class Listener extends Thread{
                 QueueingConsumer.Delivery delivery = null;
                 delivery = consumer.nextDelivery();
                 String message= new String(delivery.getBody());
-                String retsessionId=message.substring(0,message.indexOf("*"));
-                System.out.println("result sessionId"+retsessionId);
+//                String messagewithoutHead[]=message.split("\\|");
+                String retsessionId=message.substring(message.indexOf("\\|"),message.indexOf("*"));
+                System.out.println("result sessionId:"+retsessionId);
                 ChannelHandlerContext ctx=DownLoadHandler.getCtxs().get(retsessionId);
                 if(ctx!=null){
                     ctx.writeAndFlush(message);

@@ -34,11 +34,14 @@ public class LoginHandler extends ChannelHandlerAdapter {
         if(type.equalsIgnoreCase(JsonKeyword.LOGIN)){
             String username = body.getString(JsonKeyword.USERNAME);
             String passwd = body.getString(JsonKeyword.PASSWORD);
+            System.out.println(passwd);
+            logger.info("[login,"+username+",["+username+","+passwd+"],"+"用户登录,"+System.currentTimeMillis()+"]");
             String can = "0";
             if(canLogin(username,passwd)){
                 can = "1";
             }
             logger.info(username+"访问后台返回值===>Loginhandler:channelRead"+can);
+            System.out.println(username+"访问后台返回值===>Loginhandler:channelRead"+can);
             ctx.writeAndFlush(can).addListener(ChannelFutureListener.CLOSE);
 
             lock.lock();
@@ -55,9 +58,11 @@ public class LoginHandler extends ChannelHandlerAdapter {
         Jedis jedis = null;
         int count = 0;
         jedis = sJedisPool.getConnection();
+        System.out.println(username);
         while (count < 3) {
             try{
                 String passwd0 = jedis.hget(JsonKeyword.USERS,username);
+                System.out.println("passwd0"+passwd0);
                 if(passwd0 != null && passwd0.equals(passwd)){
                     sJedisPool.putbackConnection(jedis);
                     logger.info(username+"===>canLogin true");
@@ -86,7 +91,7 @@ public class LoginHandler extends ChannelHandlerAdapter {
     }
 
     public void exceptionCaught(ChannelHandlerContext ctx,Throwable cause){
-        cause.printStackTrace();;
+        cause.printStackTrace();
         ctx.close();
     }
 

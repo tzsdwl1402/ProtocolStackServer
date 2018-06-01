@@ -23,7 +23,6 @@ public class ImprovePersonalInfoHandler extends ChannelHandlerAdapter {
         JSONObject body = (JSONObject)msg;
         String type = body.getString(JsonKeyword.TYPE);
         VoUser voUser = new VoUser();
-        System.out.println("type"+type);
         if(type.equalsIgnoreCase(JsonKeyword.IMPROVE_PERSONAL_INFO)){
            voUser.setUserName(body.getString(JsonKeyword.USERNAME));
            voUser.setNickName(body.getString(JsonKeyword.NICKNAME));
@@ -31,7 +30,7 @@ public class ImprovePersonalInfoHandler extends ChannelHandlerAdapter {
            voUser.setGender(Integer.parseInt(body.getString(JsonKeyword.GENDER)));
            voUser.setAddress(body.getString(JsonKeyword.ADDRESS));
 //           voUser.setImageData(body.getString(JsonKeyword.IMGDATA));
-
+            logger.info("[improvePersonalInfo,"+JsonKeyword.USERNAME+",["+JsonKeyword.USERNAME+","+JsonKeyword.NICKNAME+","+JsonKeyword.AGE+","+JsonKeyword.GENDER+"]"+",完善用户个人信息,"+System.currentTimeMillis()+"]");
             String sql="update user set nickName=?,age=?,gender=?,address=? where userName=?";
             int ret=saveInfoToDB(voUser,sql);
             if(ret>=0){

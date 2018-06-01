@@ -19,7 +19,7 @@ public class ConsoleListener implements Runnable {
         while (true) {
             String comment = in.nextLine();
             if ("log change".equals(comment)) {
-                PropertyConfigurator.configure("./log.properties");
+                PropertyConfigurator.configure("./log4j.properties");
             } else {
                 System.out.println("comment error!");
             }

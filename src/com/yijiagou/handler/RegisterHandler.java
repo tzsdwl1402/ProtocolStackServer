@@ -33,6 +33,7 @@ public class RegisterHandler extends ChannelHandlerAdapter {
             String passwd = (String) jsonObject.get(JsonKeyword.PASSWORD);
             String checkcode = (String) jsonObject.get(JsonKeyword.CHECKCODE);
             String state = jedisCheckUser(username, passwd, checkcode);
+            logger.info("[register,"+username+",["+username+","+passwd+","+checkcode+"],"+"用户注册,"+System.currentTimeMillis()+"]");
             logger.info(username+"后端处理完得到的值===>RegisterHandler:channelRead"+state);
             ctx.writeAndFlush(state);
             if (state.equals("1")) {

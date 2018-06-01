@@ -27,6 +27,7 @@ public class CheckUserNameHandler extends ChannelHandlerAdapter {
         JSONObject jsonObject = (JSONObject) msg;
         if (jsonObject.get(JsonKeyword.TYPE).equals(JsonKeyword.CHECKUSERNAME)) {
             String username = (String) jsonObject.get(JsonKeyword.USERNAME);
+            logger.info("[pcCheckUserName,"+username+",["+username+"]"+",pc端帐号检查,"+System.currentTimeMillis()+"]");
             String status = jedisGetUsername(username);
             logger.info(username+"后台检查是否用户存在返回值===>"+status);
             ctx.writeAndFlush(status);
@@ -36,7 +37,6 @@ public class CheckUserNameHandler extends ChannelHandlerAdapter {
     }
 
     private String jedisGetUsername(String username) {
-
         Jedis jedis = null;
         int count = 0;
         jedis = sJedisPool.getConnection();

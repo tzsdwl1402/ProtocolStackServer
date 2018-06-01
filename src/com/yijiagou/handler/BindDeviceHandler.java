@@ -18,7 +18,7 @@ import redis.clients.jedis.Jedis;
 public class BindDeviceHandler extends ChannelHandlerAdapter {
     private SJedisPool sJedisPool;
     private static Logger logger = Logger.getLogger(BindDeviceHandler.class.getName());
-
+    private static final String KEY="DEVICE";
     public BindDeviceHandler(SJedisPool sJedisPool) {
         this.sJedisPool = sJedisPool;
     }
@@ -31,6 +31,7 @@ public class BindDeviceHandler extends ChannelHandlerAdapter {
             String userName = (String) jsonObject.get(JsonKeyword.USERNAME);
             String deviceId = (String) jsonObject.get(JsonKeyword.DEVICEID);
             //
+            logger.info("[bindDevice,"+userName+",["+deviceId+"],"+"绑定家电,"+System.currentTimeMillis()+"]");
             int ret=checkDeviceId(deviceId);
             if (ret== Find.NOT_EXIST.getValue()){
                 ctx.writeAndFlush("4"); //4:not exist
@@ -43,7 +44,7 @@ public class BindDeviceHandler extends ChannelHandlerAdapter {
                 //3:绑定失败
                 logger.info(userName + "后端处理完得到的值===》addDeviceHandler:channelRead" + a);
                 ctx.writeAndFlush(a);
-                if (a.equals("1") == false && a.equals("3") == false) {
+                if (a.equals("1") == true) {
                     userAndDevice.setAddTime(System.currentTimeMillis());
                     String sql = "insert into userAndDevice(userName,deviceId,addTime) values(?,?,?)";
                     this.insertToDB(sql, userAndDevice);
@@ -65,23 +66,23 @@ public class BindDeviceHandler extends ChannelHandlerAdapter {
         jedis = sJedisPool.getConnection();
         while (true) {
             try {
-                if(jedis.exists(username)) {
-                    if (jedis.hexists(username, deviceid)) {
+                if(jedis.exists(username+KEY)) {
+                    if (jedis.hexists(username+KEY, deviceid)) {
                         sJedisPool.putbackConnection(jedis);
                         logger.info(username + "业务处理完返回值===>insertUsersDevice 1");
-                        return "1";
+                        return "3";//already exist
                     }
                 }
-                jedis.hset(username, deviceid, devicetype);
+                jedis.hset(username+KEY, deviceid, devicetype);
                 sJedisPool.putbackConnection(jedis);
                 logger.info(username + "业务处理完返回值===>insertUsersDevice 2");
-                return "2";
+                return "1";//success
             } catch (Exception e) {
                 e.printStackTrace();
                 logger.warn(e +username+ "===>insertUserDevice");
                 if (count++ >= 2) {
                     logger.error(username+"暂时无法访问redis===>insertUsersDevice 3");
-                    return "3";
+                    return "2";
                 } else {
                     sJedisPool.repairConnection(jedis);
                     try {

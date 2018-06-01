@@ -46,6 +46,7 @@ public class JsonKeyword {
     public static final String GET_FRIENDS="getFriends";
     public static final String FRIEND="friend";
     public static final String STATUS="status";
+    public static final String VAL_MESSAGE="verifyInfo";
 
     //LEAVE MESSAGE
     public static final String LEAVE_MESSAGE="leaveMessage";

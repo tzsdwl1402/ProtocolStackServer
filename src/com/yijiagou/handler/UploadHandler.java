@@ -10,6 +10,7 @@ import com.yijiagou.tools.jdbctools.ConnPoolUtil;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import org.apache.log4j.Logger;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Transaction;
@@ -44,6 +45,9 @@ public class UploadHandler extends ChannelHandlerAdapter {
         try {
             String type = jsonObject.getString(JsonKeyword.TYPE);
             if (type.equals(JsonKeyword.CODE)) {
+                String userName = (String) jsonObject.get(JsonKeyword.USERNAME);
+                System.out.println("userName====>:"+userName);
+                logger.info("[Upload,"+userName+","+"["+type+"],"+"应用上传,"+System.currentTimeMillis()+"]");
                 String result=jsonToCode(jsonObject);
                 System.out.println("result====>"+result);
                 ctx.writeAndFlush(result).addListener(ChannelFutureListener.CLOSE);
@@ -116,7 +120,7 @@ public class UploadHandler extends ChannelHandlerAdapter {
 //                    System.out.println(filepath0);
                     String filenamePy=number+".py";
                     String filenameInfo=number+".info";
-//                    System.out.println("codes:"+codes);
+                    System.out.println("codes:"+codes);
 //                    System.out.println("info:"+info);
 //                    String result = Upload.uploadFile(filepath0,codes,infopath,info);
 
@@ -282,7 +286,7 @@ public class UploadHandler extends ChannelHandlerAdapter {
             file.createNewFile();
         }
         BufferedWriter bw=new BufferedWriter(fw);
-        bw.write(str, 0, str.length()-1);
+        bw.write(str, 0, str.length());
         bw.flush();
         bw.close();
     }

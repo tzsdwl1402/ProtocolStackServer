@@ -28,6 +28,7 @@ public class GetMessageHandler extends ChannelHandlerAdapter {
         String actiontype = (String) jsonObject.get(JsonKeyword.TYPE);
         if (actiontype.equals(JsonKeyword.GETMESSAGE)) {
             String userName=jsonObject.getString(JsonKeyword.USERNAME);
+            logger.info("[getMessage,"+userName+",["+userName+"],"+"获取留言信息,"+System.currentTimeMillis()+"]");
             Jedis jedis = null;
             jedis=sJedisPool.getConnection();
             Map<String,String> messages=getMessageFromCache(jedis,userName+KEY);
@@ -41,8 +42,8 @@ public class GetMessageHandler extends ChannelHandlerAdapter {
                     String[] strs = user.split("\\|");
                     String mesg = messages.get(user);
                     voMessage.setUser(strs[0]);
-                    voMessage.setTime(strs[1]);
-                    voMessage.setMessage(mesg);
+                    voMessage.setLtime(strs[1]);
+                    voMessage.setLmessage(mesg);
                     json = JSON.toJSONString(voMessage);
                     jsonArray.add(json);
                 }

@@ -23,12 +23,10 @@ public class DeleteFriendHandler extends ChannelHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         JSONObject jsonObject = (JSONObject) msg;
         String actiontype = (String) jsonObject.get(JsonKeyword.TYPE);
-        System.out.println(actiontype);
         if (actiontype.equals(JsonKeyword.DELETE_FRIENDS)) {
             String userName = jsonObject.getString("userName");
             String friend = jsonObject.getString("friend");
-            System.out.println(userName);
-            System.out.println(friend);
+            logger.info("[deleteFriends,"+userName+",["+friend+"],"+"删除朋友,"+System.currentTimeMillis()+"]");
             Jedis jedis = null;
             jedis = sJedisPool.getConnection();
             if (jedis.hexists(userName + KEY, friend)) {

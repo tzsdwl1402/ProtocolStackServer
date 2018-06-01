@@ -23,6 +23,7 @@ public class ShowDetailAppInfo  extends ChannelHandlerAdapter {
         if (jsonObject.get(JsonKeyword.TYPE).equals(JsonKeyword.APP_DETAIL_INFO)) {
 //            String userName=jsonObject.getString(JsonKeyword.USERNAME);
             String appId=jsonObject.getString(JsonKeyword.APPID);
+            logger.info("[appDetailInfo,"+"useName,"+"["+appId+"],"+"获取应用详细信息,"+System.currentTimeMillis()+"]");
             VoAppDetailInfo voAppDetailInfo = getDetailInfoFromDB(appId);
             JSONArray jsonArray = new JSONArray();
             String json= JSON.toJSONString(voAppDetailInfo);

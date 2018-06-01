@@ -30,6 +30,7 @@ public class LeaveMessageHandler extends ChannelHandlerAdapter {
             String userName=jsonObject.getString(JsonKeyword.USERNAME);
             String receiver=jsonObject.getString(JsonKeyword.RECEIVER);
             String message=jsonObject.getString(JsonKeyword.MESSAGE);
+            logger.info("[leaveMessage,"+userName+",["+userName+","+receiver+","+message+"],"+"给某个用户留言,"+System.currentTimeMillis()+"]");
             LeaveMessage lm=new LeaveMessage();
             lm.setSender(userName);
             lm.setReceiver(receiver);
@@ -41,7 +42,12 @@ public class LeaveMessageHandler extends ChannelHandlerAdapter {
             if(ret==1){
                 long addTime=System.currentTimeMillis();
                 lm.setAddTime(addTime);
-                saveToDB(lm);
+                int a=saveToDB(lm);
+                if(a>=0){
+                    ctx.writeAndFlush("1");
+                }
+            }else {
+                ctx.writeAndFlush("2");
             }
 
         }else {
@@ -52,7 +58,6 @@ public class LeaveMessageHandler extends ChannelHandlerAdapter {
     public int saveToCache(Jedis jedis,LeaveMessage lm){
         try{
             long time=System.currentTimeMillis();
-            System.out.println("time:"+time);
             jedis.hset(lm.getReceiver()+KEY,lm.getSender()+"|"+time,lm.getMessage());
             sJedisPool.repairConnection(jedis);
             return 1;//success

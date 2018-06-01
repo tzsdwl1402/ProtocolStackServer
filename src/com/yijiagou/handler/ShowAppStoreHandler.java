@@ -29,7 +29,9 @@ public class ShowAppStoreHandler extends ChannelHandlerAdapter {
         JSONObject jsonObject = (JSONObject) msg;
         if (jsonObject.get(JsonKeyword.TYPE).equals(JsonKeyword.APPSTORE)) {
             String devicetype = (String) jsonObject.get(JsonKeyword.DEVICETYPE);
+            String userName=(String) jsonObject.get(JsonKeyword.USERNAME);
             String page = (String) jsonObject.get(JsonKeyword.PAGE);
+            logger.info("[appStore,"+userName+",["+devicetype+","+page+"],"+"获取应用商店,"+System.currentTimeMillis()+"]");
             JSONArray jsonArray = jedisGeturlinfo(devicetype, Integer.parseInt(page));
             logger.info("返回前端的数据===>ShowAppStoreHandler:channelRead "+jsonArray.toString());
             ctx.writeAndFlush(jsonArray.toString());

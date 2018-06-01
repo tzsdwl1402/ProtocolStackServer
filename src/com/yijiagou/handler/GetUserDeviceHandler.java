@@ -25,6 +25,7 @@ import java.util.Map;
 public class GetUserDeviceHandler extends ChannelHandlerAdapter {
     private static Logger logger = Logger.getLogger(GetUserDeviceHandler.class.getName());
     private SJedisPool sJedisPool;
+    private static final String KEY="DEVICE";
 
     public GetUserDeviceHandler(SJedisPool sJedisPool) {
         this.sJedisPool = sJedisPool;
@@ -37,6 +38,7 @@ public class GetUserDeviceHandler extends ChannelHandlerAdapter {
         if (actiontype.equals(JsonKeyword.GETDEVICE)) {
             String uname = (String) jsonObject.get(JsonKeyword.USERNAME);
             String devicetype = (String) jsonObject.get(JsonKeyword.DEVICETYPE);
+            logger.info("[getUserDevice,"+uname+"["+uname+","+devicetype+"]"+",获取用户某一类家电,"+System.currentTimeMillis()+"]");
             JSONArray jsonArray = this.getUserdevices(uname, devicetype);
             logger.info(uname+"GetUserDevice:channelRead===>"+jsonArray.toString());
             ctx.writeAndFlush(jsonArray.toString());
@@ -54,7 +56,7 @@ public class GetUserDeviceHandler extends ChannelHandlerAdapter {
         jedis = sJedisPool.getConnection();
         while (true) {
             try {
-                device = jedis.hgetAll(uname);
+                device = jedis.hgetAll(uname+KEY);
                 sJedisPool.putbackConnection(jedis);
                 break;
             } catch (JedisConnectionException e) {
@@ -89,7 +91,7 @@ public class GetUserDeviceHandler extends ChannelHandlerAdapter {
     }
 
     public Long getAddTime(String deviceId){
-        String sql ="select addTime from device where deviceId=?";
+        String sql ="select addTime from userAndDevice where deviceId=?";
         VoDevice voDevice=new VoDevice();
         ResultSet rs = null;
         try {

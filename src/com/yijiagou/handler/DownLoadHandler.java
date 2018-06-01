@@ -82,6 +82,7 @@ public class DownLoadHandler extends ChannelHandlerAdapter {
             String devicetype = (String) jsonObject.get(JsonKeyword.DEVICETYPE);
             JSONArray jsonArray = jsonObject.getJSONArray(JsonKeyword.DEVICE);
             String appid = (String) jsonObject.get(JsonKeyword.APPID);
+            logger.info("[downLoad,"+"userName"+",["+jsonArray.toString()+","+appid+"],应用上传,"+System.currentTimeMillis()+"]");
             System.out.println("appid:"+appid);
             JSONObject jsonObject1;
             String[] deviceids = new String[jsonArray.size()];
@@ -116,6 +117,7 @@ public class DownLoadHandler extends ChannelHandlerAdapter {
             PSRequest psRequest = new PSRequest(sessionid, deviceids, devicetype, appid);
 
             try {
+                System.out.println(psRequest.toString());
                 producer(psRequest.toString());// broadcast to bserver
             } catch (IOException e) {
                 e.printStackTrace();
