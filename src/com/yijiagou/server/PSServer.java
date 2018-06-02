@@ -8,8 +8,10 @@ import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.QueueingConsumer;
 import com.yijiagou.Vo.VoDownLoadResult;
 import com.yijiagou.config.Configurator;
+import com.yijiagou.config.EnvironmentUtil;
 import com.yijiagou.handler.DownLoadHandler;
 import com.yijiagou.pojo.MyLogger;
+import com.yijiagou.tools.JedisUtils.SJedisPool;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
@@ -17,13 +19,10 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import com.yijiagou.tools.JedisUtils.SJedisPool;
-import org.apache.log4j.PropertyConfigurator;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Scanner;
 
 /**
  * Created by wangwei on 17-7-28.
@@ -33,6 +32,7 @@ public class PSServer {
     private String host;
     private SJedisPool sJedisPool;
     private ConnectionFactory connecFac;
+    private static EnvironmentUtil sysenv= new EnvironmentUtil("config/mq.properties");
 
     private PSServer() {
 
@@ -44,7 +44,14 @@ public class PSServer {
         this.sJedisPool = new SJedisPool(Configurator.getJPWorkMaxNum(), Configurator.getJPWorkMinNum(),
                 Configurator.getJPHost(), Configurator.getJPPort());
         this.connecFac = new ConnectionFactory();
-        connecFac.setHost("127.0.0.1");
+        String host=sysenv.getPropertyValue("mq.host");
+        Integer port=Integer.parseInt(sysenv.getPropertyValue("mq.port"));
+        String userName=sysenv.getPropertyValue("mq.user");
+        String passWord=sysenv.getPropertyValue("mq.password");
+        connecFac.setHost(host);
+        connecFac.setPort(port);
+        connecFac.setUsername(userName);
+        connecFac.setPassword(passWord);
         Thread thread = new Thread(new Listener(connecFac));
         thread.start();
     }
