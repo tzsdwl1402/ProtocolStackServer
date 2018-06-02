@@ -39,7 +39,7 @@ public class Message {
     public String toString() {
         StringBuffer pack = new StringBuffer();
         pack.append(this.head);
-        pack.append("|");
+        pack.append("*");
         pack.append(this.body);
         return pack.toString();
     }

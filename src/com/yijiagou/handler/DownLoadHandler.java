@@ -43,6 +43,16 @@ public class DownLoadHandler extends ChannelHandlerAdapter {
         return ctxs;
     }
 
+    public static Map<String,String> deviceIdAndSessionMap=new HashMap<>();
+
+    public static Map<String, String> getDeviceIdAndSessionMap() {
+        return deviceIdAndSessionMap;
+    }
+
+    public static void setDeviceIdAndSessionMap(Map<String, String> deviceIdAndSessionMap) {
+        DownLoadHandler.deviceIdAndSessionMap = deviceIdAndSessionMap;
+    }
+
     public static void setCtxs(Map<String, ChannelHandlerContext> ctxs) {
         DownLoadHandler.ctxs = ctxs;
     }
@@ -87,10 +97,19 @@ public class DownLoadHandler extends ChannelHandlerAdapter {
             JSONObject jsonObject1;
             String[] deviceids = new String[jsonArray.size()];
             System.out.println(jsonArray.size());
+            String sessionid = null;
+            try {
+                sessionid = randomnums.take();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                logger.error(e + "DownLoadHandler:channelRead");
+            }
 
+            System.out.println("sessionid"+sessionid);
             for (int i = 0; i < jsonArray.size(); i++) {
                 jsonObject1 = (JSONObject) jsonArray.get(i);
                 deviceids[i] = (String) jsonObject1.get(JsonKeyword.DEVICEID);
+                deviceIdAndSessionMap.put(deviceids[i],sessionid);
                 System.out.println("deviceid:"+deviceids[i]);
             }
 //            BufferedWriter bw = null;
@@ -105,14 +124,7 @@ public class DownLoadHandler extends ChannelHandlerAdapter {
 //                logger.error(e + "===>DownLoadHandler:channelRead");
 //            }
 //            int count = 0;
-            String sessionid = null;
-            try {
-                sessionid = randomnums.take();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-                logger.error(e + "DownLoadHandler:channelRead");
-            }
-            System.out.println("sessionid"+sessionid);
+
             ctxs.put(sessionid,ctx);
             PSRequest psRequest = new PSRequest(sessionid, deviceids, devicetype, appid);
 

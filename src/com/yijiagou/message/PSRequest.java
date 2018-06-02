@@ -23,8 +23,8 @@ public class PSRequest extends Message {
             sb1.append(deviceIds[i]).append("#");
         }
         String deviceids = sb1.toString().substring(0, sb1.length() - 1);
-        urlsize = (deviceids + "*" + deviceType + "*" + appId).getBytes().length;
-        sb2.append(sessionId).append("*").append(urlsize).append("*").append(deviceids).
+//        urlsize = (deviceids + "*" + deviceType + "*" + appId).getBytes().length;
+        sb2.append(sessionId).append("*").append(deviceids).
                 append("*").append(deviceType).append("*").append(appId);
         this.body = sb2.toString();
 
