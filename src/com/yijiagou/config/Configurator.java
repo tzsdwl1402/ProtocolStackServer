@@ -12,9 +12,9 @@ public class Configurator {
     private static final String INDEXPATH = "index.txt";
 //    private static String JPPATH = "/conf/jedis.properties";
 //    private static String SERVERPATH = "/conf/ProtocolStackServer.properties";
-    private static final String JPPATH = "jedis.properties";
-    private static final String SERVERPATH = "ProtocolStackServer.properties";
-    private static final String BSERVERPATH= "DownLoadServer.properties";
+    private static final String JPPATH = "config/jedis.properties";
+    private static final String SERVERPATH = "config/ProtocolStackServer.properties";
+    private static final String BSERVERPATH= "config/DownLoadServer.properties";
     static {
         configs = new ConcurrentHashMap();
     }

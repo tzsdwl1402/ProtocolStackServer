@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" name="pss">
-    <output-path>/opt/smarthome/bin</output-path>
-    <root id="archive" name="pss.jar">
-      <element id="module-output" name="ProtocolStackServer" />
-    </root>
-  </artifact>
-</component>

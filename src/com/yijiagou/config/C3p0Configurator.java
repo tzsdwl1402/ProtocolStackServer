@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Created by zgl on 17-9-7.
  */
 public class C3p0Configurator {
-    private final static String filename = "c3p0.properties";
+    private final static String filename = "config/c3p0.properties";
     private static ConcurrentHashMap<String, String> map = new ConcurrentHashMap<>();
 
     public static ConcurrentHashMap<String, String> readConfig() {

@@ -8,7 +8,7 @@ import java.io.File;
  * Created by zgl on 17-9-8.
  */
 public class Log4JConfig {
-    private final static String filename = "log4j.properties";
+    private final static String filename = "../config/log4j.properties";
     private static String path;
     static {
         File file = new File("index.txt");
